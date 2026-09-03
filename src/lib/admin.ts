@@ -2,9 +2,7 @@ import type { NextResponse } from "next/server";
 import { getSession } from "./auth";
 import { jsonError } from "./api";
 
-export type AdminGuardResult =
-  | { ok: true }
-  | { ok: false; response: NextResponse };
+export type AdminGuardResult = any;
 
 /** Ensure the current request comes from a signed-in admin. */
 export async function requireAdmin(): Promise<AdminGuardResult> {

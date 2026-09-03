@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     if (existing) slug = `${slug}-${Date.now().toString(36)}`;
 
     const product = await db.product.create({
-      data: { ...data, slug },
+      data: { ...data, slug } as any,
     });
 
     return jsonOk({ product }, 201);
