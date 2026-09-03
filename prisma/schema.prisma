@@ -1,0 +1,64 @@
+// Prisma schema for the Neon E-Commerce app.
+// Prices are stored in the smallest currency unit (cents) to avoid floating point errors.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         String    @default("user") // "user" | "admin"
+  createdAt    DateTime  @default(now())
+  orders       Order[]
+}
+
+model Setting {
+  key   String @id
+  value String
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  name        String
+  description String
+  price       Int // cents
+  category    String
+  imageUrl    String
+  stock       Int         @default(0)
+  createdAt   DateTime    @default(now())
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  userId          String?
+  user            User?       @relation(fields: [userId], references: [id])
+  email           String
+  stripeSessionId String?     @unique
+  amount          Int // cents
+  currency        String      @default("usd")
+  status          String      @default("pending") // pending | paid | cancelled
+  createdAt       DateTime    @default(now())
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id           String   @id @default(cuid())
+  orderId      String
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    String?
+  product      Product? @relation(fields: [productId], references: [id])
+  productName  String
+  productImage String
+  quantity     Int
+  price        Int // cents, snapshot at purchase time
+}
